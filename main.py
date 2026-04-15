@@ -1,7 +1,10 @@
 import logging
-from parser import WildberriesParser
 
 from config import BaseConfig
+from client import WildberriesClient
+from save_excel import ExcelSaver
+from parser import WildberriesParser
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -9,24 +12,25 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
+
 def main():
+    """Запускает парсер Wildberries и выводит результаты."""
 
     config = BaseConfig()
-    parser = WildberriesParser(config)
+    client = WildberriesClient(config)
+    saver = ExcelSaver(config.OUTPUT_DIR)
+    parser = WildberriesParser(config, client, saver)
 
     query = config.QUERY
 
+    result = parser.run(query)
+
     logger = logging.getLogger(__name__)
-    logger.info(f'Парсинг по запросу: "{query}"')
-
-    ids = parser.get_all_product_ids(query)
-
-    if ids:
-        logger.info(f'Всего получено ID: {len(ids)}')
-        logger.info(f'Первые 5 ID: {ids[:5]}')
-        logger.info(f'Последние 5 ID: {ids[-5:]}')
-    else:
-        logger.warning('ID не получены')
+    logger.info('=' * 50)
+    logger.info('ГОТОВО')
+    logger.info(f'Всего товаров в каталоге: {result["catalog_count"]}')
+    logger.info(f'Товаров после фильтрации: {result["filtered_count"]}')
+    logger.info(f'Файлы сохранены в папке: {config.OUTPUT_DIR}/')
 
 
 if __name__ == '__main__':

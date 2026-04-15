@@ -1,11 +1,15 @@
 import uuid
+from urllib.parse import quote_plus
 
 
 class BaseConfig:
     """Базовые настройки парсера."""
 
     SEARCH_URL = 'https://search.wb.ru/exactmatch/ru/common/v4/search'
-    CARD_URL = 'https://card.wb.ru/cards/v2/detail'
+    BASKET_URL_TEMPLATE = 'https://basket-01.wbbasket.ru/vol{vol}/part{part}/{nm_id}/info/ru/card.json'
+    PRODUCT_URL_TEMPLATE = 'https://www.wildberries.ru/catalog/{nm_id}/detail.aspx'
+    SELLER_URL_TEMPLATE = 'https://www.wildberries.ru/seller/{supplier_id}'
+    IMAGE_URL_TEMPLATE = 'https://images.wbstatic.net/big/new/{nm_id}-{index}.jpg'
 
     SEARCH_PARAMS = {
         'ab_testing': 'false',
@@ -21,35 +25,35 @@ class BaseConfig:
         'suppressSpellcheck': 'false',
     }
 
-    @staticmethod
-    def _generate_device_id() -> str:
-        """Генерирует уникальный идентификатор устройства."""
+    QUERY = 'пальто из натуральной шерсти'
 
-        return f'site_{uuid.uuid4().hex}'
+    REQUEST_DELAY = 0.5
+    DETAIL_DELAY = 0.15
+    MAX_RETRIES = 3
 
-    @staticmethod
-    def _generate_query_id() -> str:
-        """
-        Генерирует уникальный идентификатор поискового запроса.
+    RATING_THRESHOLD = 4.5
+    MAX_PRICE_RUB = 10000
+    REQUIRED_COUNTRY = 'россия'
 
-        Используется для отслеживания сессии поиска на стороне WB.
-        """
+    OUTPUT_DIR = 'output'
+    CATALOG_FILENAME = 'catalog.xlsx'
+    FILTERED_FILENAME = 'catalog_filtered.xlsx'
 
-        return f'qid{uuid.uuid4().hex[:30]}'
+    def __init__(self):
+        """Генерирует уникальные deviceid и x-queryid для сессии."""
 
-    def get_headers(self) -> dict:
-        """
-        Формирует HTTP-заголовки для запросов к API Wildberries.
+        self.device_id = f'site_{uuid.uuid4().hex}'
+        self.query_id = f'qid{uuid.uuid4().hex[:30]}'
 
-        Включает идентификаторы устройства и запроса, а также имитирует реальный браузер для обхода защиты.
-        """
+    def get_headers(self, query: str) -> dict:
+        """Возвращает заголовки HTTP-запроса с динамическими id."""
 
         return {
             'Accept': '*/*',
             'Accept-Language': 'ru,en;q=0.9',
             'Connection': 'keep-alive',
             'Origin': 'https://www.wildberries.ru',
-            'Referer': 'https://www.wildberries.ru/',
+            'Referer': f'https://www.wildberries.ru/catalog/0/search.aspx?search={quote_plus(query)}',
             'Sec-Fetch-Dest': 'empty',
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin',
@@ -59,10 +63,6 @@ class BaseConfig:
             'sec-ch-ua-platform': '"Linux"',
             'x-requested-with': 'XMLHttpRequest',
             'x-spa-version': '14.5.6',
-            'deviceid': self._generate_device_id(),
-            'x-queryid': self._generate_query_id(),
+            'deviceid': self.device_id,
+            'x-queryid': self.query_id,
         }
-
-    QUERY = 'пальто из натуральной шерсти'
-
-    REQUEST_DELAY = 0.5
