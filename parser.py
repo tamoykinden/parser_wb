@@ -1,12 +1,14 @@
 import logging
 from typing import List
 
-import requests
+from curl_cffi import requests
+from curl_cffi.requests.exceptions import RequestException
 
 from config import BaseConfig
 
 
 logger = logging.getLogger(__name__)
+
 
 class WildberriesParser:
     """Парсер данных с WB."""
@@ -32,12 +34,14 @@ class WildberriesParser:
                 url=self.config.SEARCH_URL,
                 params=params,
                 headers=self.config.HEADERS,
+                impersonate='chrome120',
                 timeout=30
             )
             response.raise_for_status()
             data = response.json()
 
-            products = data.get('data', {}).get('products', [])
+            products = data.get('products', [])
+
             if not products:
                 logger.warning(f'Страница {page}: товары не найдены')
                 return []
@@ -46,9 +50,10 @@ class WildberriesParser:
             logger.info(f'Страница {page}: получено {len(ids)} ID')
             return ids
 
-        except requests.RequestException as e:
+        except RequestException as e:
             logger.error(f'Ошибка при запросе страницы {page}: {e}')
             return []
+
         except (KeyError, ValueError, TypeError) as e:
             logger.error(f'Ошибка при разборе ответа страницы {page}: {e}')
             return []
