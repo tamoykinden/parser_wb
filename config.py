@@ -1,7 +1,11 @@
+import uuid
+
+
 class BaseConfig:
     """Базовые настройки парсера."""
 
     SEARCH_URL = 'https://search.wb.ru/exactmatch/ru/common/v4/search'
+    CARD_URL = 'https://card.wb.ru/cards/v2/detail'
 
     SEARCH_PARAMS = {
         'ab_testing': 'false',
@@ -17,22 +21,47 @@ class BaseConfig:
         'suppressSpellcheck': 'false',
     }
 
-    HEADERS = {
-        'Accept': '*/*',
-        'Accept-Language': 'ru,en;q=0.9',
-        'Connection': 'keep-alive',
-        'Origin': 'https://www.wildberries.ru',
-        'Referer': 'https://www.wildberries.ru/',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 YaBrowser/25.12.0.0 Safari/537.36',
-        'sec-ch-ua': '"Chromium";v="142", "YaBrowser";v="25.12", "Not_A Brand";v="99", "Yowser";v="2.5"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Linux"',
-        'x-requested-with': 'XMLHttpRequest',
-        'x-spa-version': '14.5.6',
-    }
+    @staticmethod
+    def _generate_device_id() -> str:
+        """Генерирует уникальный идентификатор устройства."""
+
+        return f'site_{uuid.uuid4().hex}'
+
+    @staticmethod
+    def _generate_query_id() -> str:
+        """
+        Генерирует уникальный идентификатор поискового запроса.
+
+        Используется для отслеживания сессии поиска на стороне WB.
+        """
+
+        return f'qid{uuid.uuid4().hex[:30]}'
+
+    def get_headers(self) -> dict:
+        """
+        Формирует HTTP-заголовки для запросов к API Wildberries.
+
+        Включает идентификаторы устройства и запроса, а также имитирует реальный браузер для обхода защиты.
+        """
+
+        return {
+            'Accept': '*/*',
+            'Accept-Language': 'ru,en;q=0.9',
+            'Connection': 'keep-alive',
+            'Origin': 'https://www.wildberries.ru',
+            'Referer': 'https://www.wildberries.ru/',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 YaBrowser/25.12.0.0 Safari/537.36',
+            'sec-ch-ua': '"Chromium";v="142", "YaBrowser";v="25.12", "Not_A Brand";v="99", "Yowser";v="2.5"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Linux"',
+            'x-requested-with': 'XMLHttpRequest',
+            'x-spa-version': '14.5.6',
+            'deviceid': self._generate_device_id(),
+            'x-queryid': self._generate_query_id(),
+        }
 
     QUERY = 'пальто из натуральной шерсти'
 

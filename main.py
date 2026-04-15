@@ -19,7 +19,7 @@ def main():
     logger = logging.getLogger(__name__)
     logger.info(f'Парсинг по запросу: "{query}"')
 
-    ids = parser.get_all_priduct_ids(query)
+    ids = parser.get_all_product_ids(query)
 
     if ids:
         logger.info(f'Всего получено ID: {len(ids)}')
