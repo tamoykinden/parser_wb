@@ -1,11 +1,11 @@
 import logging
+import time
 from typing import List
 
 from curl_cffi import requests
 from curl_cffi.requests.exceptions import RequestException
 
 from config import BaseConfig
-
 
 logger = logging.getLogger(__name__)
 
@@ -57,3 +57,29 @@ class WildberriesParser:
         except (KeyError, ValueError, TypeError) as e:
             logger.error(f'Ошибка при разборе ответа страницы {page}: {e}')
             return []
+
+    def get_all_priduct_ids(self, query: str) -> List[int]:
+        """
+        Получает список всех ID товаров со всех страниц.
+
+        Возвращает список ID.
+        """
+
+        all_ids = []
+        page = 1
+
+        while True:
+            ids = self.get_product_ids(query, page)
+
+            if not ids:
+                logger.info(f'Достигнут конец выдачи на странице {page}')
+                break
+
+            all_ids.extend(ids)
+            logger.info(f'Всего собрано ID: {len(all_ids)}')
+
+            page += 1
+            time.sleep(self.config.REQUEST_DELAY)
+
+        logger.info(f'Итог ID: {len(all_ids)}')
+        return all_ids

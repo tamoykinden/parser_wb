@@ -1,7 +1,7 @@
 class BaseConfig:
     """Базовые настройки парсера."""
 
-    SEARCH_URL = 'https://www.wildberries.ru/__internal/u-search/exactmatch/ru/common/v18/search'
+    SEARCH_URL = 'https://search.wb.ru/exactmatch/ru/common/v4/search'
 
     SEARCH_PARAMS = {
         'ab_testing': 'false',

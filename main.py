@@ -1,8 +1,7 @@
 import logging
-
-from config import BaseConfig
 from parser import WildberriesParser
 
+from config import BaseConfig
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,11 +19,12 @@ def main():
     logger = logging.getLogger(__name__)
     logger.info(f'Парсинг по запросу: "{query}"')
 
-    ids = parser.get_product_ids(query, page=1)
+    ids = parser.get_all_priduct_ids(query)
 
     if ids:
         logger.info(f'Всего получено ID: {len(ids)}')
         logger.info(f'Первые 5 ID: {ids[:5]}')
+        logger.info(f'Последние 5 ID: {ids[-5:]}')
     else:
         logger.warning('ID не получены')
 
