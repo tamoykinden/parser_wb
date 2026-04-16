@@ -2,11 +2,10 @@ import logging
 import time
 from typing import Any, Dict, List
 
-from config import BaseConfig
 from client import WildberriesClient
-from mapper import map_product, enrich_product
+from config import BaseConfig
+from mapper import enrich_product, map_product
 from save_excel import ExcelSaver
-
 
 logger = logging.getLogger(__name__)
 

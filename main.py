@@ -1,10 +1,9 @@
 import logging
-
-from config import BaseConfig
-from client import WildberriesClient
-from save_excel import ExcelSaver
 from parser import WildberriesParser
 
+from client import WildberriesClient
+from config import BaseConfig
+from save_excel import ExcelSaver
 
 logging.basicConfig(
     level=logging.INFO,
