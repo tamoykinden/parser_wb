@@ -21,20 +21,26 @@ class WildberriesParser:
         self.saver = saver if saver is not None else ExcelSaver(self.config.OUTPUT_DIR)
 
     def collect_catalog(self, query: str) -> List[Dict[str, Any]]:
-        """Собирает все товары по поисковому запросу со всех страниц."""
+        """
+        Собирает все товары по поисковому запросу со всех страниц.
+        Останавливается, если страница вернула пустой список товаров или если 5 страниц подряд не дали ни одного нового товара.
+        """
 
         rows: List[Dict[str, Any]] = []
         seen_ids = set()
         page = 1
+        no_new_pages = 0
+        max_no_new_pages = 5
 
         while True:
             try:
                 products = self.client.search_page(query, page)
             except RuntimeError as e:
-                logger.error(f'Страница {page}, не удалось загрузить ({e})')
+                logger.error(f'Страница {page}: не удалось загрузить ({e})')
                 break
 
             if not products:
+                logger.info(f'Страница {page}: товары закончились')
                 break
 
             fresh_count = 0
@@ -46,7 +52,15 @@ class WildberriesParser:
                 rows.append(map_product(product, self.config))
                 fresh_count += 1
 
-            logger.info(f'Страница {page}: добавлено {fresh_count} товаро')
+            logger.info(f'Страница {page}: добавлено {fresh_count} товаров, всего {len(rows)}')
+
+            if fresh_count == 0:
+                no_new_pages += 1
+                if no_new_pages >= max_no_new_pages:
+                    logger.info(f'Остановка: {max_no_new_pages} страниц подряд без новых товаров')
+                    break
+            else:
+                no_new_pages = 0
 
             page += 1
             time.sleep(self.config.REQUEST_DELAY)
