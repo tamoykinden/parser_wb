@@ -12,9 +12,11 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
+logger = logging.getLogger(__name__)
+
 
 def main():
-    """Запускает парсер Wildberries и выводит результаты."""
+    """Запускает парсер WB."""
 
     config = BaseConfig()
     client = WildberriesClient(config)
@@ -25,9 +27,6 @@ def main():
 
     result = parser.run(query)
 
-    logger = logging.getLogger(__name__)
-    logger.info('=' * 50)
-    logger.info('ГОТОВО')
     logger.info(f'Всего товаров в каталоге: {result["catalog_count"]}')
     logger.info(f'Товаров после фильтрации: {result["filtered_count"]}')
     logger.info(f'Файлы сохранены в папке: {config.OUTPUT_DIR}/')

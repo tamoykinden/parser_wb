@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class WildberriesParser:
-    """Управляет сбором каталога, обогащением, фильтрацией и сохранением."""
+    """Управляет сбором каталога, сбором деталей, фильтрацией и сохранением."""
 
     def __init__(self, config: BaseConfig = None, client: WildberriesClient = None, saver: ExcelSaver = None):
         """Инициализация парсера."""
@@ -32,11 +32,10 @@ class WildberriesParser:
             try:
                 products = self.client.search_page(query, page)
             except RuntimeError as e:
-                logger.error(f'Страница {page}: не удалось загрузить ({e})')
+                logger.error(f'Страница {page}, не удалось загрузить ({e})')
                 break
 
             if not products:
-                logger.info(f'Страница {page}: товары закончились')
                 break
 
             fresh_count = 0
@@ -48,7 +47,7 @@ class WildberriesParser:
                 rows.append(map_product(product, self.config))
                 fresh_count += 1
 
-            logger.info(f'Страница {page}: добавлено {fresh_count} товаров, всего {len(rows)}')
+            logger.info(f'Страница {page}: добавлено {fresh_count} товаро')
 
             page += 1
             time.sleep(self.config.REQUEST_DELAY)
@@ -57,7 +56,7 @@ class WildberriesParser:
         return rows
 
     def enrich_catalog(self, rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Обогащает каталог детальной информацией с basket-хостов."""
+        """Собирает детальную информацию."""
 
         enriched: List[Dict[str, Any]] = []
         total = len(rows)
@@ -73,11 +72,10 @@ class WildberriesParser:
             enriched.append(row)
 
             if index % 50 == 0 or index == total:
-                logger.info(f'Обогащение: {index}/{total}')
+                logger.info(f'Сбор деталей: {index}/{total}')
 
             time.sleep(self.config.DETAIL_DELAY)
 
-        logger.info(f'Обогащение завершено. Обработано {total} товаров')
         return enriched
 
     def filter_catalog(self, rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -96,13 +94,11 @@ class WildberriesParser:
             ):
                 filtered.append(row)
 
-        logger.info(f'Фильтрация завершена. Отобрано {len(filtered)} товаров из {len(rows)}')
+        logger.info(f'Отобрано {len(filtered)} товаров из {len(rows)}')
         return filtered
 
     def run(self, query: str) -> Dict[str, Any]:
-        """Запускает полный пайплайн: сбор, обогащение, фильтрация, сохранение."""
-
-        logger.info(f'Начинаем парсинг по запросу: "{query}"')
+        """Запускает сбор, фильтрацию, сохранение."""
 
         rows = self.collect_catalog(query)
         rows = self.enrich_catalog(rows)
@@ -111,7 +107,7 @@ class WildberriesParser:
         self.saver.save(rows, self.config.CATALOG_FILENAME)
         self.saver.save(filtered, self.config.FILTERED_FILENAME)
 
-        logger.info(f'Полный каталог сохранён: {self.config.OUTPUT_DIR}/{self.config.CATALOG_FILENAME}')
+        logger.info(f'Полный каталог сохранен: {self.config.OUTPUT_DIR}/{self.config.CATALOG_FILENAME}')
         logger.info(f'Выборка сохранена: {self.config.OUTPUT_DIR}/{self.config.FILTERED_FILENAME}')
 
         return {
