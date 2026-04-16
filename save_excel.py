@@ -5,17 +5,17 @@ from openpyxl import Workbook
 
 
 class ExcelSaver:
-    """Класс для сохранения данных в формат XLSX."""
+    """Класс для сохранения данных в формат xlsx."""
 
     def __init__(self, output_dir: str):
-        """Инициализация объекта для сохранения Excel-файлов."""
+        """Инициализация объекта для сохранения xlsx-файлов."""
 
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def _get_headers() -> List[Tuple[str, str]]:
-        """Возвращает список заголовков для XLSX-файла."""
+        """Возвращает список заголовков для xlsx-файла."""
 
         return [
             ('Ссылка на товар', 'product_url'),
@@ -35,7 +35,7 @@ class ExcelSaver:
         ]
 
     def save(self, rows: List[Dict[str, Any]], filename: str) -> None:
-        """Сохраняет список словарей в XLSX-файл."""
+        """Сохраняет список словарей в xlsx-файл."""
 
         file_path = self.output_dir / filename
 

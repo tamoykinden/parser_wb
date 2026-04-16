@@ -7,7 +7,6 @@ from curl_cffi.requests.exceptions import RequestException
 
 from config import BaseConfig
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -23,7 +22,7 @@ class WildberriesClient:
         self._preferred_hosts = [f'basket-{i:02d}.wbbasket.ru' for i in range(11, 21)]
 
     def _request_with_retry(self, url: str, params: Dict[str, Any], query: str) -> Dict[str, Any]:
-        """GET-запрос с повторными попытками и экспоненциальной задержкой при 429."""
+        """GET-запрос с повторными попытками и задержкой при 429."""
 
         delay = 2
 
@@ -38,7 +37,7 @@ class WildberriesClient:
                 )
 
                 if response.status_code == 429:
-                    logger.warning(f'429 на {url}, попытка {attempt}/{self.config.MAX_RETRIES}, жду {delay} сек')
+                    logger.warning(f'429 на {url}, попытка {attempt}/{self.config.MAX_RETRIES}, ожидание {delay} сек')
                     time.sleep(delay)
                     delay *= 2
                     continue
@@ -56,7 +55,7 @@ class WildberriesClient:
         raise RuntimeError(f'Не удалось выполнить запрос к {url}')
 
     def search_page(self, query: str, page: int) -> List[Dict[str, Any]]:
-        """Получает список товаров с одной страницы поисковой выдачи."""
+        """Получает список товаров с одной страницы поиска."""
 
         params = self.config.SEARCH_PARAMS.copy()
         params['query'] = query
@@ -70,7 +69,7 @@ class WildberriesClient:
         return products
 
     def get_basket_details(self, nm_id: int) -> Optional[Dict[str, Any]]:
-        """Получает детальную информацию о товаре, перебирая basket-хосты с кешем."""
+        """Получает детальную информацию о товаре."""
 
         vol = nm_id // 100000
         part = nm_id // 1000

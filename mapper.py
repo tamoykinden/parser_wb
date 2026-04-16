@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 
 def extract_sizes(product: Dict[str, Any]) -> List[str]:
-    """Извлекает список уникальных размеров товара."""
+    """Извлекает список уникальных размеров."""
 
     sizes: List[str] = []
     for size_item in product.get('sizes', []):
@@ -26,7 +26,7 @@ def extract_stocks(product: Dict[str, Any]) -> int:
 
 
 def extract_price(product: Dict[str, Any]) -> float:
-    """Извлекает цену товара в рублях."""
+    """цена товара в рублях."""
 
     direct_price = product.get('salePriceU') or product.get('priceU')
     if isinstance(direct_price, (int, float)) and direct_price > 0:
@@ -112,17 +112,14 @@ def collect_options_from_details(details: Dict[str, Any]) -> List[Dict[str, str]
 
 
 def build_images(nm_id: int, pics_count: int, template: str) -> List[str]:
-    """Строит список ссылок на изображения товара."""
+    """список ссылок на изображения товара."""
 
     count = pics_count if pics_count > 0 else 1
     return [template.format(nm_id=nm_id, index=i) for i in range(1, count + 1)]
 
 
-def map_product(
-    product: Dict[str, Any],
-    config: Any
-) -> Dict[str, Any]:
-    """Преобразует сырой JSON товара из поиска в строку для XLSX."""
+def map_product(product: Dict[str, Any], config: Any) -> Dict[str, Any]:
+    """Преобразует JSON товара из поиска в строку для экселя."""
 
     nm_id = int(product.get('id', 0))
     characteristics = extract_characteristics(product)
@@ -149,12 +146,8 @@ def map_product(
     }
 
 
-def enrich_product(
-    row: Dict[str, Any],
-    details: Dict[str, Any],
-    config: Any
-) -> Dict[str, Any]:
-    """Обогащает строку каталога данными из детальной карточки."""
+def enrich_product(row: Dict[str, Any], details: Dict[str, Any], config: Any) -> Dict[str, Any]:
+    """Деталиизурет строку каталога данными из детальной карточки."""
 
     if not row.get('description'):
         row['description'] = str(details.get('description', '') or '')
