@@ -27,9 +27,9 @@ class BaseConfig:
 
     QUERY = 'пальто из натуральной шерсти'
 
-    REQUEST_DELAY = 0.5
+    REQUEST_DELAY = 3.0
     DETAIL_DELAY = 0.15
-    MAX_RETRIES = 3
+    MAX_RETRIES = 5
 
     RATING_THRESHOLD = 4.5
     MAX_PRICE_RUB = 10000

@@ -65,11 +65,11 @@ class WildberriesParser:
         for index, row in enumerate(rows, start=1):
             article = int(row.get('article', 0) or 0)
             if article:
-                try:
-                    details = self.client.get_basket_details(article)
+                details = self.client.get_basket_details(article)
+
+                if details:
                     row = enrich_product(row, details, self.config)
-                except Exception as e:
-                    logger.warning(f'Товар {article}: не удалось получить детали ({e})')
+
             enriched.append(row)
 
             if index % 50 == 0 or index == total:
